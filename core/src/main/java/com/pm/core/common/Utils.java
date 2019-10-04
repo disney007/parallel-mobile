@@ -21,5 +21,9 @@ public class Utils {
     public static <T> T fromJson(String json, Class<T> clazz) {
         return Exceptions.sneak().get(() -> objectMapper.readValue(json, clazz));
     }
+
+    public static <T> T convert(Object from, Class<T> clazz) {
+        return objectMapper.convertValue(from, clazz);
+    }
 }
 

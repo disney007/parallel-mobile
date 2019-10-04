@@ -9,12 +9,14 @@ services:
     image: mongo:4.2.0
     ports:
       - "27017:27017"
-    restart: always
+    volumes:
+      - /data/mongo1:/data/db
     entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--port", "27017", "--replSet", "rs0" ]
   mongo2:
     hostname: mongo2
     image: mongo:4.2.0
     ports:
       - "27117:27117"
-    restart: always
+    volumes:
+      - /data/mongo2:/data/db
     entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--port", "27117", "--replSet", "rs0" ]

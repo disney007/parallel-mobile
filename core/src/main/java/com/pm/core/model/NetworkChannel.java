@@ -3,16 +3,16 @@ package com.pm.core.model;
 import com.google.common.collect.ImmutableMap;
 import com.machinezoo.noexception.Exceptions;
 import com.pm.core.common.Utils;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.websocket.*;
 import java.net.URI;
-import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.function.Consumer;
 
 @Slf4j
-public class NetworkUser {
+public class NetworkChannel {
 
 
     @ClientEndpoint
@@ -41,17 +41,19 @@ public class NetworkUser {
         }
     }
 
-    Consumer<NetworkUser> onConnectedCallback;
-    Consumer<Throwable> onErrorCallback;
-    Consumer<String> onCloseCallback;
-    Consumer<String> onMessageCallback;
+    @Setter
+    Consumer<NetworkChannel> onConnected;
+    @Setter
+    Consumer<Throwable> onError;
+    @Setter
+    Consumer<String> onClosed;
+    @Setter
+    Consumer<MessageContent> onMessage;
     Session session;
-    String username = "ANZ-123223";
 
 
-    public void connect() {
+    public void connect(String url) {
         Exceptions.sneak().run(() -> {
-            String url = "wss://sandbox-linker.spendzer.app/ws";
             log.info("start connecting to ws [{}]", url);
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             container.connectToServer(new MyClientEndpoint(), URI.create(url));
@@ -59,37 +61,35 @@ public class NetworkUser {
     }
 
     void onConnected(Session session) {
-        log.info("user [{}] connected to ws", this.username);
+        log.info("connected to ws");
         Exceptions.sneak().run(() -> {
             this.session = session;
-            if (onConnectedCallback != null) {
-                onConnectedCallback.accept(this);
+            if (onConnected != null) {
+                onConnected.accept(this);
             }
         });
-
     }
 
 
     void onMessage(String message) {
-        log.info("user [{}] received message {}", username, message);
+        log.debug("on message received [{}]", message);
         MessageContent testMessage = Utils.fromJson(message, MessageContent.class);
-        if (onMessageCallback != null) {
-            this.onMessageCallback.accept(message);
+        if (onMessage != null) {
+            this.onMessage.accept(testMessage);
         }
     }
 
     void onClosed(String str) {
-        log.info("user [{}] closed", username);
-        log.info(str);
-        if (this.onMessageCallback != null) {
-            this.onCloseCallback.accept(str);
+        log.info("connection closed:{}", str);
+        if (this.onMessage != null) {
+            this.onClosed.accept(str);
         }
     }
 
     void onError(Throwable t) {
-        log.error("error received from user [{}]", username, t);
-        if (onErrorCallback != null) {
-            onErrorCallback.accept(t);
+        log.error("error received", t);
+        if (onError != null) {
+            onError.accept(t);
         }
     }
 
@@ -108,6 +108,13 @@ public class NetworkUser {
                 "feature", "RELIABLE"
         );
 
-        Exceptions.sneak().run(() -> this.session.getBasicRemote().sendText(Utils.toJson(message)));
+        String msgJson = Utils.toJson(message);
+        log.debug("send message:[{}]", msgJson);
+        Exceptions.sneak().run(() -> this.session.getBasicRemote().sendText(msgJson));
+    }
+
+    public void close() {
+        log.info("close channel");
+        Exceptions.sneak().run(() -> this.session.close());
     }
 }
