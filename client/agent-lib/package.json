@@ -1,0 +1,15 @@
+{
+  "name": "agent-lib",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "rm -f ./dist/*.* && tsc --build tsconfig.json",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "requirejs": "^2.3.6"
+  }
+}

@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 public class NetworkService implements InitializingBean {
     final String username = "ANZ-123223";
     final String appId = "app-id-343";
-    final static int RECONNECT_DELAY  = 10;
+    final static int RECONNECT_DELAY = 10;
 
     NetworkChannel channel;
 
@@ -62,6 +62,8 @@ public class NetworkService implements InitializingBean {
             case AUTH_CLIENT_REPLY:
                 handleAuthReply(message.toData(AuthClientReply.class));
                 break;
+            default:
+                log.info("unhandled received message:[{}]", message);
         }
     }
 
