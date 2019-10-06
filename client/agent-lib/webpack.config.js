@@ -15,6 +15,10 @@ module.exports = {
                 test: /\.tsx?$/,
                 loader: 'ts-loader',
                 exclude: /node_modules/
+            },
+            {
+                test: /\.worker\.js$/,
+                use: {loader: 'worker-loader', options: {publicPath: '/workers/'}}
             }
         ]
     },

@@ -41,7 +41,8 @@ export interface CalculationRequest {
 
 export enum CalculationState {
     OK = 'OK',
-    ERROR = 'ERROR'
+    ERROR = 'ERROR',
+    INTERNAL_ERROR = 'INTERNAL_ERROR'
 }
 
 export interface CalculationResponse {
