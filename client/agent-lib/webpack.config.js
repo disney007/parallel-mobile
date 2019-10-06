@@ -18,7 +18,7 @@ module.exports = {
             },
             {
                 test: /\.worker\.js$/,
-                use: {loader: 'worker-loader', options: {publicPath: '/workers/'}}
+                use: {loader: 'worker-loader'}
             }
         ]
     },
