@@ -1,10 +1,13 @@
 var path = require('path');
 
 module.exports = {
-    entry: path.join(__dirname, '/src/App.ts'),
+    entry: path.join(__dirname, '/src/Index.ts'),
     output: {
         filename: './dist/agent-lib.js',
-        path: __dirname
+        path: __dirname,
+        library: "agentLib",   // Important
+        libraryTarget: 'umd',   // Important
+        umdNamedDefine: true   // Important
     },
     module: {
         rules: [
@@ -17,5 +20,6 @@ module.exports = {
     },
     resolve: {
         extensions: [".tsx", ".ts", ".js"]
-    }
+    },
+    devtool: 'source-map'
 };

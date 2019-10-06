@@ -1,4 +1,4 @@
-import {AuthClientReply, Message, MessageType} from "./Message";
+import {AuthClientReply, Message, MessageContent, MessageType, SubMessage} from "./Message";
 import {Subject} from "rxjs";
 
 export class NetworkChannel {
@@ -7,7 +7,7 @@ export class NetworkChannel {
     url: string;
     appId: string;
     userId: string;
-    userMessage: Subject<any> = new Subject<any>();
+    userMessage: Subject<MessageContent> = new Subject<MessageContent>();
 
     constructor(url: string, appId: string, userId: string) {
         this.url = url;
@@ -77,8 +77,8 @@ export class NetworkChannel {
         }
     }
 
-    handleUserMessage(userMessage: any) {
-        this.userMessage.next(userMessage);
+    handleUserMessage(messageContent: MessageContent) {
+        this.userMessage.next(messageContent);
     }
 
 

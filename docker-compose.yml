@@ -10,7 +10,7 @@ services:
     ports:
       - "27017:27017"
     volumes:
-      - /data/mongo1:/data/db
+      - /content/mongo1:/content/db
     entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--port", "27017", "--replSet", "rs0" ]
   mongo2:
     hostname: mongo2
@@ -18,5 +18,5 @@ services:
     ports:
       - "27117:27117"
     volumes:
-      - /data/mongo2:/data/db
+      - /content/mongo2:/content/db
     entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--port", "27117", "--replSet", "rs0" ]

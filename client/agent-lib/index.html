@@ -6,9 +6,10 @@
 <div>
     body
 </div>
+<script src="dist/agent-lib.js"></script>
 <script>
-    var worker = new Worker('worker.js');
-    console.log('index loaded');
+    var jobRunner = new window.agentLib.JobRunner();
+    jobRunner.run();
 </script>
 </body>
 </html>
