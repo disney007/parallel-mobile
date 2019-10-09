@@ -1,4 +1,4 @@
-package com.pm.core.model;
+package com.pm.core.model.message;
 
 import com.pm.core.common.Utils;
 import lombok.Data;
@@ -6,7 +6,7 @@ import lombok.ToString;
 
 @Data
 @ToString
-public class MessageContent {
+public class Message {
     MessageType type;
     Object data;
     String reference;

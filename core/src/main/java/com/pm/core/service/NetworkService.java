@@ -1,9 +1,10 @@
 package com.pm.core.service;
 
 import com.google.common.collect.ImmutableMap;
+import com.pm.core.config.ApplicationConfig;
 import com.pm.core.model.AuthClientReply;
-import com.pm.core.model.MessageContent;
-import com.pm.core.model.MessageType;
+import com.pm.core.model.message.Message;
+import com.pm.core.model.message.MessageType;
 import com.pm.core.model.NetworkChannel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,13 +18,13 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @RequiredArgsConstructor
 public class NetworkService implements InitializingBean {
-    final String username = "ANZ-123223";
-    final String appId = "app-id-343";
     final static int RECONNECT_DELAY = 10;
 
     NetworkChannel channel;
 
+    final ApplicationConfig applicationConfig;
     final ScheduledExecutorService scheduledExecutorService;
+    final MessageService messageService;
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -36,34 +37,38 @@ public class NetworkService implements InitializingBean {
         channel.setOnConnected(user -> this.authenticate());
         channel.setOnMessage(this::handleMessage);
         channel.setOnClosed(this::channelClosed);
-        channel.connect("wss://m.gl-world.de/ws");
+        channel.connect(applicationConfig.getWsUrl());
     }
 
     public void authenticate() {
-        log.info("start authenticating user={}, appId={}", this.username, this.appId);
+        String username = applicationConfig.getMasterUserId();
+        String appId = applicationConfig.getAppId();
+
+        log.info("start authenticating user={}, appId={}", username, appId);
         channel.sendMessage(MessageType.AUTH_CLIENT, ImmutableMap.of(
-                "appId", this.appId,
-                "userId", this.username,
+                "appId", appId,
+                "userId", username,
                 "token", ""
         ));
     }
 
     void handleAuthReply(AuthClientReply reply) {
+        String username = applicationConfig.getMasterUserId();
         if (reply.getIsAuthenticated()) {
-            log.info("username [{}] is authenticated", this.username);
+            log.info("username [{}] is authenticated", username);
         } else {
-            log.info("username [{}] is not authenticated, close channel", this.username);
+            log.info("username [{}] is not authenticated, close channel", username);
             this.channel.close();
         }
     }
 
-    public void handleMessage(MessageContent message) {
+    public void handleMessage(Message message) {
         switch (message.getType()) {
             case AUTH_CLIENT_REPLY:
                 handleAuthReply(message.toData(AuthClientReply.class));
                 break;
             default:
-                log.info("unhandled received message:[{}]", message);
+                messageService.handleMessage(message);
         }
     }
 

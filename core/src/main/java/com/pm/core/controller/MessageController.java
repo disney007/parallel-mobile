@@ -1,6 +1,6 @@
 package com.pm.core.controller;
 
-import com.pm.core.restModel.Message;
+import com.pm.core.restModel.MessageRecord;
 import com.pm.core.service.NetworkService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,7 +23,7 @@ public class MessageController {
     }
 
     @RequestMapping(value = "send", method = RequestMethod.POST)
-    public void sendMessage(@Valid @RequestBody Message message) {
-        networkService.sendMessage(message.getType(), message.getData());
+    public void sendMessage(@Valid @RequestBody MessageRecord messageRecord) {
+        networkService.sendMessage(messageRecord.getType(), messageRecord.getData());
     }
 }

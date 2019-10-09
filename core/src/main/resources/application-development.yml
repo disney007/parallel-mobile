@@ -5,8 +5,14 @@ spring:
     port: 6379
   data:
     mongodb:
-      uri: mongodb://localhost:27017,localhost:27117/nmm?replicaSet=rs0
+      uri: mongodb://localhost:27017,localhost:27117/pm?replicaSet=rs0
 server:
   port: 9000
   servlet:
     context-path: /api
+minDeviceId: 1
+maxDeviceId: 10000000
+appId: app-id-343
+deviceIdPrefix: ANZ
+masterUserId: ANZ-123223
+wsUrl: wss://m.gl-world.de/ws

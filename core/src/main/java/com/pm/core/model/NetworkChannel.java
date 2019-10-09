@@ -3,6 +3,8 @@ package com.pm.core.model;
 import com.google.common.collect.ImmutableMap;
 import com.machinezoo.noexception.Exceptions;
 import com.pm.core.common.Utils;
+import com.pm.core.model.message.Message;
+import com.pm.core.model.message.MessageType;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -48,7 +50,7 @@ public class NetworkChannel {
     @Setter
     Consumer<String> onClosed;
     @Setter
-    Consumer<MessageContent> onMessage;
+    Consumer<Message> onMessage;
     Session session;
 
 
@@ -73,7 +75,7 @@ public class NetworkChannel {
 
     void onMessage(String message) {
         log.debug("on message received [{}]", message);
-        MessageContent testMessage = Utils.fromJson(message, MessageContent.class);
+        Message testMessage = Utils.fromJson(message, Message.class);
         if (onMessage != null) {
             this.onMessage.accept(testMessage);
         }
