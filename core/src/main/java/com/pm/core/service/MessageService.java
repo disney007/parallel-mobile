@@ -33,6 +33,12 @@ public class MessageService {
             return;
         }
 
-        messageHandlers.get(type).handle(message);
+        try {
+            messageHandlers.get(type).handle(message);
+        } catch (Exception e) {
+            log.error("error occurred in message handler", e);
+        }
+
+
     }
 }

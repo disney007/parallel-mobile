@@ -11,13 +11,13 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class ConnectionService {
-    final DeviceService deviceService;
+    final AgentService agentService;
     final ApplicationConfig applicationConfig;
     final DeviceTokenRepository deviceTokenRepository;
 
     public ConnectionPermit registerAgent() {
-        String deviceId = deviceService.generateDeviceId();
-        String token = deviceService.generateToken();
+        String deviceId = agentService.generateDeviceId();
+        String token = agentService.generateToken();
 
         DeviceToken deviceToken = new DeviceToken(deviceId, DeviceType.AGENT, token, System.currentTimeMillis());
         deviceTokenRepository.save(deviceToken);

@@ -3,9 +3,25 @@ spring:
   redis:
     host: localhost
     port: 6379
-  data:
-    mongodb:
-      uri: mongodb://localhost:27017,localhost:27117/pm?replicaSet=rs0
+  jpa:
+    show-sql: false
+    generate-ddl: true
+    hibernate:
+      ddl-auto: validate
+    database-platform: org.hibernate.dialect.PostgreSQL95Dialect
+    properties:
+      hibernate:
+        jdbc:
+          lob:
+            non_contextual_creation: true
+    open-in-view: false
+  datasource:
+    platform: postgres
+    url: jdbc:postgresql://localhost:5432/pm
+    username: disney
+    password: disney
+  flyway:
+    enabled: false
 server:
   port: 9000
   servlet:

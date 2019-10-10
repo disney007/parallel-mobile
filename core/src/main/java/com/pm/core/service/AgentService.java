@@ -1,7 +1,7 @@
 package com.pm.core.service;
 
 import com.pm.core.config.ApplicationConfig;
-import com.pm.core.repository.DeviceRepository;
+import com.pm.core.repository.AgentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -10,11 +10,11 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class DeviceService {
+public class AgentService {
     final static String DEVICE_ID_KEY = "DEVICE_ID_KEY";
     final RedisTemplate redisTemplate;
     final ApplicationConfig applicationConfig;
-    final DeviceRepository deviceRepository;
+    final AgentRepository agentRepository;
 
     public Long getNextDeviceId() {
         long min = applicationConfig.getMinDeviceId();

@@ -4,19 +4,13 @@ services:
     image: redis
     ports:
       - "6379:6379"
-  mongo1:
-    hostname: mongo1
-    image: mongo:4.2.0
+  psql:
+    image: postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgress
+      - POSTGRES_DB=postgres
     ports:
-      - "27017:27017"
+      - "5432:5432"
     volumes:
-      - /content/mongo1:/content/db
-    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--port", "27017", "--replSet", "rs0" ]
-  mongo2:
-    hostname: mongo2
-    image: mongo:4.2.0
-    ports:
-      - "27117:27117"
-    volumes:
-      - /content/mongo2:/content/db
-    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--port", "27117", "--replSet", "rs0" ]
+      - /data/psql1:/var/lib/postgresql/data

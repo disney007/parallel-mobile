@@ -1,13 +1,13 @@
 package com.pm.core.messageHandler;
 
-import com.pm.core.entity.Device;
+import com.pm.core.entity.Agent;
 import com.pm.core.entity.DeviceToken;
 import com.pm.core.model.device.DeviceState;
 import com.pm.core.model.device.DeviceType;
 import com.pm.core.model.message.DeviceConnectionRecord;
 import com.pm.core.model.message.Message;
 import com.pm.core.model.message.MessageType;
-import com.pm.core.repository.DeviceRepository;
+import com.pm.core.repository.AgentRepository;
 import com.pm.core.repository.DeviceTokenRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class DeviceConnectedMessageHandler extends MessageHandler {
     final DeviceTokenRepository deviceTokenRepository;
-    final DeviceRepository deviceRepository;
+    final AgentRepository agentRepository;
 
     @Override
     public MessageType getType() {
@@ -38,8 +38,8 @@ public class DeviceConnectedMessageHandler extends MessageHandler {
             return;
         }
         if (DeviceType.AGENT.equals(deviceToken.getType())) {
-            Device device = new Device(deviceId, DeviceState.IDLE, System.currentTimeMillis());
-            deviceRepository.save(device);
+            Agent agent = new Agent(deviceId, DeviceState.IDLE, System.currentTimeMillis());
+            agentRepository.save(agent);
             deviceTokenRepository.delete(deviceToken);
         }
     }
