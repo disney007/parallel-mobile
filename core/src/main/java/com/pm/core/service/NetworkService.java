@@ -1,11 +1,15 @@
 package com.pm.core.service;
 
 import com.google.common.collect.ImmutableMap;
+import com.pm.core.common.Utils;
 import com.pm.core.config.ApplicationConfig;
 import com.pm.core.model.AuthClientReply;
+import com.pm.core.model.message.ApplicationMessageType;
+import com.pm.core.model.message.CustomMessageOut;
 import com.pm.core.model.message.Message;
 import com.pm.core.model.message.MessageType;
 import com.pm.core.model.NetworkChannel;
+import com.pm.core.model.message.applicationMessage.ApplicationMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
@@ -79,5 +83,11 @@ public class NetworkService implements InitializingBean {
 
     public void sendMessage(MessageType type, Object payload) {
         channel.sendMessage(type, payload);
+    }
+
+    public void sendApplicationMessage(ApplicationMessageType type, Object payload, String to) {
+        ApplicationMessage applicationMessage = new ApplicationMessage(type, payload);
+        String msgJson = Utils.toJson(applicationMessage);
+        sendMessage(MessageType.MESSAGE, new CustomMessageOut(to, msgJson));
     }
 }

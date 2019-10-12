@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class DeviceDisconnectedMessageHandler extends MessageHandler {
+public class DeviceDisconnectedMessageHandler implements MessageHandler {
 
     final AgentDeviceRepository agentDeviceRepository;
     final ConsumerDeviceRepository consumerDeviceRepository;
