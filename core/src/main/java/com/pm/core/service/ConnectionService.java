@@ -15,11 +15,11 @@ public class ConnectionService {
     final ApplicationConfig applicationConfig;
     final DeviceTokenRepository deviceTokenRepository;
 
-    public ConnectionPermit registerAgent() {
+    public ConnectionPermit registerDevice(DeviceType deviceType) {
         String deviceId = agentService.generateDeviceId();
         String token = agentService.generateToken();
 
-        DeviceToken deviceToken = new DeviceToken(deviceId, DeviceType.AGENT, token, System.currentTimeMillis());
+        DeviceToken deviceToken = new DeviceToken(deviceId, deviceType, token, System.currentTimeMillis());
         deviceTokenRepository.save(deviceToken);
 
         return new ConnectionPermit(applicationConfig.getWsUrl(), applicationConfig.getAppId(), deviceId, token);

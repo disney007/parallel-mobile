@@ -1,20 +1,18 @@
 package com.pm.core.entity;
 
 import com.pm.core.model.device.DeviceState;
+import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.UUID;
 
 
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
-@Table(name = "agent", schema = "public")
-public class Agent {
+@Table(name = "agent_device", schema = "public")
+public class AgentDevice {
     @Id
-    @GeneratedValue
-    UUID id;
-
     @Column(name = "device_id")
     String deviceId;
 
@@ -24,10 +22,4 @@ public class Agent {
 
     @Column(name = "created_timestamp")
     Long createdTimestamp;
-
-    public Agent(String deviceId, DeviceState state, Long createdTimestamp) {
-        this.deviceId = deviceId;
-        this.state = state;
-        this.createdTimestamp = createdTimestamp;
-    }
 }
