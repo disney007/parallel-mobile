@@ -11,8 +11,10 @@ import com.pm.core.model.message.MessageType;
 import com.pm.core.model.NetworkChannel;
 import com.pm.core.model.message.applicationMessage.ApplicationMessage;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.ScheduledExecutorService;
@@ -28,7 +30,8 @@ public class NetworkService implements InitializingBean {
 
     final ApplicationConfig applicationConfig;
     final ScheduledExecutorService scheduledExecutorService;
-    final MessageService messageService;
+    @Setter
+    MessageService messageService;
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -72,6 +75,7 @@ public class NetworkService implements InitializingBean {
                 handleAuthReply(message.toData(AuthClientReply.class));
                 break;
             default:
+                assert messageService != null;
                 messageService.handleMessage(message);
         }
     }

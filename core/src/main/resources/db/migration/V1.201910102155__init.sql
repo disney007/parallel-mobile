@@ -33,16 +33,19 @@ create table public.calculation_job(
     owner varchar not null,
     created_timestamp bigint not null,
 
-    state varchar not null check (state in ('READY', 'RUNNING', 'ERROR', 'SUCCESSFUL')),
+    state varchar not null check (state in ('READY', 'RUNNING', 'COMPLETED', 'CANCELLED')),
     result text,
     result_timestamp bigint
 );
+create index idx_calculation_job_state on public.calculation_job(state);
 
 create table public.calculation_job_execution(
     id UUID primary key not null,
     job_id UUID not null,
-    agent_device_id varchar not null,
-    state varchar not null check (state in ('RUNNING', 'TIMEOUT', 'ERROR', 'SUCCESSFUL')),
+    exec_device_id varchar not null,
+    exec_username varchar not null,
+    state varchar not null check (state in ('RUNNING', 'TIMEOUT', 'ERROR', 'SUCCESS')),
     created_timestamp bigint not null,
     update_timestamp bigint
 );
+create index idx_calcualtion_job_execution_state on public.calculation_job_execution(state);

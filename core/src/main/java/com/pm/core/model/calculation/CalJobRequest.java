@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class CalculationJobRequest {
+public class CalJobRequest {
     String requestId;
     String script;
     String owner;
