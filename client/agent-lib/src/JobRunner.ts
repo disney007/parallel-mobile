@@ -1,25 +1,47 @@
 import {NetworkChannel} from "./NetworkChannel";
-import {CalculationResponse, MessageContent, MessageType, SubMessage, SubMessageType} from "./Message";
+import {
+    CalculationResponse,
+    ConnectionPermit,
+    MessageContent,
+    MessageType,
+    SubMessage,
+    SubMessageType
+} from "./Message";
+import axios from 'axios';
 
 import {Calculator} from "./Calculator";
 
 export class JobRunner {
     channel!: NetworkChannel;
-    calcualtor!: Calculator;
+    calculator!: Calculator;
+
+    constructor(private baseUrl: string) {
+
+    }
+
+    registerAgent(): Promise<ConnectionPermit> {
+        return axios.post<ConnectionPermit>(this.baseUrl + '/api/connection/registerAgent')
+            .then(response => response.data)
+    }
 
     run() {
-        console.log('job runner started');
-        this.calcualtor = new Calculator();
-        this.channel = new NetworkChannel('wss://m.gl-world.de/ws', 'app-id-343', 'ANZ-990289');
-        this.channel.userMessage.subscribe(msg => this.handleMessage(msg));
-        this.channel.connect();
+        console.log('starting job runner, baseUrl = ' + this.baseUrl);
+        this.calculator = new Calculator();
+        this.registerAgent()
+            .then(connection => {
+                console.log('got connection permit, device id = ', connection.deviceId);
+                this.channel = new NetworkChannel(connection.wsUrl, connection.appId, connection.deviceId, connection.token);
+                this.channel.userMessage.subscribe(msg => this.handleMessage(msg));
+                this.channel.connect();
+            })
+
     }
 
     handleMessage(msg: MessageContent) {
         const subMessage = <SubMessage>JSON.parse(msg.content);
         switch (subMessage.type) {
             case SubMessageType.CAL_REQ:
-                this.calcualtor.calculate(subMessage.content).then(res => this.handleCalculationResponse(res, msg.from));
+                this.calculator.calculate(subMessage.data).then(res => this.handleCalculationResponse(res, msg.from));
                 break;
             default:
                 console.log('unhandled submessage', subMessage);

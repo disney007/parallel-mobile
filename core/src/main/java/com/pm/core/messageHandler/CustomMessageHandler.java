@@ -3,6 +3,7 @@ package com.pm.core.messageHandler;
 import com.google.common.collect.ImmutableMap;
 import com.pm.core.messageHandler.applicationMessageHandler.ApplicationMessageHandler;
 import com.pm.core.messageHandler.applicationMessageHandler.CalculationRequestHandler;
+import com.pm.core.messageHandler.applicationMessageHandler.CalculationResultHandler;
 import com.pm.core.model.message.ApplicationMessageType;
 import com.pm.core.model.message.CustomMessageIn;
 import com.pm.core.model.message.Message;
@@ -23,12 +24,14 @@ import java.util.stream.Collectors;
 public class CustomMessageHandler implements MessageHandler {
     final ApplicationContext applicationContext;
     final CalculationRequestHandler calculationRequestHandler;
+    final CalculationResultHandler calculationResultHandler;
     Map<ApplicationMessageType, ApplicationMessageHandler> messageHandlers;
 
     @PostConstruct
     public void setup() {
         messageHandlers = ImmutableMap.of(
-                calculationRequestHandler.getType(), calculationRequestHandler
+                calculationRequestHandler.getType(), calculationRequestHandler,
+                calculationResultHandler.getType(), calculationResultHandler
         );
     }
 

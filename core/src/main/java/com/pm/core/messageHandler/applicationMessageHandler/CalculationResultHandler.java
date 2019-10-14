@@ -3,7 +3,6 @@ package com.pm.core.messageHandler.applicationMessageHandler;
 import com.pm.core.model.calculation.CalJobResult;
 import com.pm.core.model.message.ApplicationMessageType;
 import com.pm.core.model.message.applicationMessage.ApplicationMessage;
-import com.pm.core.model.message.applicationMessage.CalculationResult;
 import com.pm.core.service.CalculationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

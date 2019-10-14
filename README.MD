@@ -7,7 +7,7 @@ Request:
 {
    "type":"MESSAGE",
    "data":{
-      "to":"ANZ-990289",
+      "to":"ANZ-123223",
       "content":"{\"type\":\"CAL_REQ\",\"content\":{\"script\":\"var a=[1+1];a;\",\"id\": \"xxx\"}}"
    }
 }
@@ -17,7 +17,7 @@ Response:
 {
    "type":"MESSAGE",
    "data":{
-      "from":"ANZ-990289",
+      "from":"ANZ-123223",
       "content":"{\"type\":\"CAL_RES\",\"data\":{\"id\":\"xxx\",\"result\":[2],\"state\":\"OK\"}}"
    }
 }

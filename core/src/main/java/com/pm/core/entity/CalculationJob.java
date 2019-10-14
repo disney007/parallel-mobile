@@ -3,6 +3,7 @@ package com.pm.core.entity;
 import com.pm.core.model.calculation.CalJobState;
 import lombok.*;
 import org.checkerframework.checker.units.qual.C;
+import org.hibernate.annotations.Fetch;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -44,7 +45,7 @@ public class CalculationJob {
     @Column(name = "result_timestamp")
     Long resultTimestamp;
 
-    @OneToMany(mappedBy = "job", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "job", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     List<CalculationJobExecution> executions;
 
     public String getInfo() {

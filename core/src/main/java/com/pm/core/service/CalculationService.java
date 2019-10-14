@@ -66,6 +66,7 @@ public class CalculationService {
             consumerDeviceRepository.findByOwner(job.getOwner()).ifPresent(consumerDevice -> {
                 CalculationResult calculationResult = new CalculationResult(job.getRequestId(), job.getResult(), result.getState());
                 networkService.sendApplicationMessage(ApplicationMessageType.CAL_RES, calculationResult, consumerDevice.getDeviceId());
+                log.info("send result [jobId = {}] to [{}]", job.getId(), consumerDevice.getDeviceId());
             });
 
         });
@@ -89,6 +90,7 @@ public class CalculationService {
 
             CalculationRequest forwardReq = new CalculationRequest(execution.getId().toString(), job.getScript());
             networkService.sendApplicationMessage(ApplicationMessageType.CAL_REQ, forwardReq, device.getDeviceId());
+            log.info("send execution job [{}] to [{}]", execution.getId(), device.getDeviceId());
         });
 
     }

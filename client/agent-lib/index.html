@@ -6,9 +6,9 @@
 <div>
     body
 </div>
-<script src="dist/agentDevice-lib.js"></script>
+<script src="dist/agent-lib.js"></script>
 <script>
-    var jobRunner = new window.agentLib.JobRunner();
+    var jobRunner = new window.agentLib.JobRunner('http://localhost:9000');
     jobRunner.run();
 </script>
 </body>

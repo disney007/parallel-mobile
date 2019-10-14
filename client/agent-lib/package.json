@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "webpack --mode development",
-    "build": "rm -f ./dist/*.* && webpack --mode development",
+    "build": "rm -f ./dist/*.* ./*.worker.js ./*.worker.js.map && webpack --mode development",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -20,6 +20,7 @@
     "worker-loader": "^2.0.0"
   },
   "dependencies": {
+    "axios": "^0.19.0",
     "install": "^0.13.0",
     "npm": "^6.11.3",
     "rxjs": "^6.5.3"

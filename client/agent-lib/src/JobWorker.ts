@@ -16,11 +16,12 @@ function doCalculation(req: CalculationRequest): CalculationResponse {
     const res: CalculationResponse = {
         id: req.id,
         result: "",
-        state: CalculationState.OK
+        state: CalculationState.SUCCESS
     };
     try {
-        res.result = eval(req.script);
-        console.log("calculation for ", req.id, " has complete, the result is", res.result);
+        console.log('calculation job received, id = ', req.id);
+        res.result = JSON.stringify(eval(req.script));
+        console.log('calculation job finished, id = ', req.id);
     } catch (e) {
         res.result = e.message;
         res.state = CalculationState.ERROR;

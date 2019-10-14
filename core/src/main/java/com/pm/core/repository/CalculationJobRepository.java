@@ -12,6 +12,6 @@ import java.util.UUID;
 @Repository
 public interface CalculationJobRepository extends PagingAndSortingRepository<CalculationJob, UUID> {
 
-    @Query("select job from CalculationJobExecution where id=:jobExecutionId")
+    @Query("select exec.job from CalculationJobExecution as exec where exec.id=:jobExecutionId")
     Optional<CalculationJob> findCalculationJob(@Param("jobExecutionId") UUID jobExecutionId);
 }

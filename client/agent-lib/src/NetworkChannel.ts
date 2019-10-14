@@ -4,15 +4,9 @@ import {Subject} from "rxjs";
 export class NetworkChannel {
 
     socket: WebSocket | undefined;
-    url: string;
-    appId: string;
-    userId: string;
     userMessage: Subject<MessageContent> = new Subject<MessageContent>();
 
-    constructor(url: string, appId: string, userId: string) {
-        this.url = url;
-        this.appId = appId;
-        this.userId = userId;
+    constructor(private url: string, private appId: string, private userId: string, private token: string) {
     }
 
     connect() {
@@ -64,7 +58,7 @@ export class NetworkChannel {
         this.sendMessage(MessageType.AUTH_CLIENT, {
             "appId": this.appId,
             "userId": this.userId,
-            "token": ""
+            "token": this.token
         })
     }
 

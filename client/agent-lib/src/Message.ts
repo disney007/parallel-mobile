@@ -25,7 +25,7 @@ export interface MessageContent {
 
 export interface SubMessage {
     type: SubMessageType;
-    content: any;
+    data: any;
 }
 
 export interface AuthClientReply {
@@ -40,7 +40,7 @@ export interface CalculationRequest {
 }
 
 export enum CalculationState {
-    OK = 'OK',
+    SUCCESS = 'SUCCESS',
     ERROR = 'ERROR',
     INTERNAL_ERROR = 'INTERNAL_ERROR'
 }
@@ -49,4 +49,11 @@ export interface CalculationResponse {
     state: CalculationState
     result: string,
     id: string
+}
+
+export interface ConnectionPermit {
+    wsUrl: string,
+    appId: string;
+    deviceId: string;
+    token: string;
 }
