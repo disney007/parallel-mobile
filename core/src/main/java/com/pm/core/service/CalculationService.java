@@ -17,6 +17,7 @@ import com.pm.core.repository.ConsumerDeviceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -72,6 +73,7 @@ public class CalculationService {
         });
     }
 
+    @Transactional
     public void execJob(CalculationJob job) {
         log.info("start executing job [{}]", job.getInfo());
         Optional<AgentDevice> agentDevice = requestAvailableAgentDevice();
@@ -96,6 +98,6 @@ public class CalculationService {
     }
 
     public Optional<AgentDevice> requestAvailableAgentDevice() {
-        return agentDeviceRepository.findFirstByState(DeviceState.IDLE);
+        return agentDeviceRepository.findFirstByStateForUpdate(DeviceState.IDLE);
     }
 }

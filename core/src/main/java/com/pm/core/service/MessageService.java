@@ -36,7 +36,7 @@ public class MessageService {
     public void handleMessage(Message message) {
         MessageType type = message.getType();
         if (!messageHandlers.containsKey(type)) {
-            log.warn("messageRecord handler not found for messageRecord [{}]", Utils.toJson(message));
+            log.warn("message handler not found for message [{}]", Utils.toJson(message));
             return;
         }
 

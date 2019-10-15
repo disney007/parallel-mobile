@@ -4,10 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.pm.core.common.Utils;
 import com.pm.core.config.ApplicationConfig;
 import com.pm.core.model.AuthClientReply;
-import com.pm.core.model.message.ApplicationMessageType;
-import com.pm.core.model.message.CustomMessageOut;
-import com.pm.core.model.message.Message;
-import com.pm.core.model.message.MessageType;
+import com.pm.core.model.message.*;
 import com.pm.core.model.NetworkChannel;
 import com.pm.core.model.message.applicationMessage.ApplicationMessage;
 import lombok.RequiredArgsConstructor;
@@ -59,10 +56,24 @@ public class NetworkService implements InitializingBean {
         ));
     }
 
+    void fetchMissingMessages() {
+        int count = 50;
+        log.info("fetch missing message count = {}", count);
+        this.sendMessage(MessageType.FETCH_MISSING_MESSAGES_REQUEST, new FetchMissingMessagesRequest(count));
+    }
+
+    void handleFetchMissingMessagesComplete(FetchMissingMessagesComplete record) {
+        log.info("fetch missing message complete, left count = {}", record.getLeftMissingCount());
+        if (record.getLeftMissingCount() > 0) {
+            this.fetchMissingMessages();
+        }
+    }
+
     void handleAuthReply(AuthClientReply reply) {
         String username = applicationConfig.getMasterUserId();
         if (reply.getIsAuthenticated()) {
             log.info("username [{}] is authenticated", username);
+            fetchMissingMessages();
         } else {
             log.info("username [{}] is not authenticated, close channel", username);
             this.channel.close();
@@ -73,6 +84,9 @@ public class NetworkService implements InitializingBean {
         switch (message.getType()) {
             case AUTH_CLIENT_REPLY:
                 handleAuthReply(message.toData(AuthClientReply.class));
+                break;
+            case FETCH_MISSING_MESSAGES_COMPLETE:
+                handleFetchMissingMessagesComplete(message.toData(FetchMissingMessagesComplete.class));
                 break;
             default:
                 assert messageService != null;

@@ -2,13 +2,39 @@ package com.pm.core.repository;
 
 import com.pm.core.entity.AgentDevice;
 import com.pm.core.model.device.DeviceState;
-import org.springframework.data.repository.PagingAndSortingRepository;
+import org.hibernate.LockMode;
+import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface AgentDeviceRepository extends PagingAndSortingRepository<AgentDevice, String> {
+public class AgentDeviceRepository {
+    @PersistenceContext
+    EntityManager entityManager;
 
-    Optional<AgentDevice> findFirstByState(DeviceState state);
+    public Optional<AgentDevice> findFirstByStateForUpdate(DeviceState state) {
+        Session session = entityManager.unwrap(Session.class);
+        List<AgentDevice> list = session.createQuery("from AgentDevice as d where d.state = :state", AgentDevice.class)
+                .setParameter("state", state)
+                .setMaxResults(1)
+                .setLockMode("d", LockMode.UPGRADE_SKIPLOCKED)
+                .list();
+        return list.size() == 1 ? Optional.of(list.get(0)) : Optional.empty();
+    }
+
+    public void save(AgentDevice device) {
+        Session session = entityManager.unwrap(Session.class);
+        session.save(device);
+    }
+
+    public void deleteById(String id) {
+        Session session = entityManager.unwrap(Session.class);
+        session.createQuery("delete from AgentDevice as d where d.deviceId = :deviceId")
+                .setParameter("deviceId", id)
+                .executeUpdate();
+    }
 }

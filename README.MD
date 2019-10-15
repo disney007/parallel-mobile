@@ -3,12 +3,11 @@ This is project is to run small tasks on mobile and collect results. The messagi
 ### Example:
 Request:
 ```json
-
 {
    "type":"MESSAGE",
    "data":{
       "to":"ANZ-123223",
-      "content":"{\"type\":\"CAL_REQ\",\"content\":{\"script\":\"var a=[1+1];a;\",\"id\": \"xxx\"}}"
+      "content":"{\"type\":\"CAL_REQ\",\"data\":{\"script\":\"var a=[1+1];a;\",\"id\": \"xxx\"}}"
    }
 }
 ```
