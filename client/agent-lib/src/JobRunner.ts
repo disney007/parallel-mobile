@@ -7,7 +7,6 @@ import {
     SubMessage,
     SubMessageType
 } from "./Message";
-import axios from 'axios';
 
 import {Calculator} from "./Calculator";
 
@@ -19,22 +18,13 @@ export class JobRunner {
 
     }
 
-    registerAgent(): Promise<ConnectionPermit> {
-        return axios.post<ConnectionPermit>(this.baseUrl + '/api/connection/registerAgent')
-            .then(response => response.data)
-    }
 
     run() {
         console.log('starting job runner, baseUrl = ' + this.baseUrl);
         this.calculator = new Calculator();
-        this.registerAgent()
-            .then(connection => {
-                console.log('got connection permit, device id = ', connection.deviceId);
-                this.channel = new NetworkChannel(connection.wsUrl, connection.appId, connection.deviceId, connection.token);
-                this.channel.userMessage.subscribe(msg => this.handleMessage(msg));
-                this.channel.connect();
-            })
-
+        this.channel = new NetworkChannel(this.baseUrl);
+        this.channel.userMessage.subscribe(msg => this.handleMessage(msg));
+        this.channel.connect();
     }
 
     handleMessage(msg: MessageContent) {

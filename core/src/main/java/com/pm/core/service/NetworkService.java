@@ -14,25 +14,26 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class NetworkService implements InitializingBean {
+public class NetworkService {
     final static int RECONNECT_DELAY = 10;
 
     NetworkChannel channel;
 
     final ApplicationConfig applicationConfig;
     final ScheduledExecutorService scheduledExecutorService;
-    @Setter
     MessageService messageService;
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
+    public void init(MessageService messageService) {
+        this.messageService = messageService;
         setupChannel();
+
     }
 
     void setupChannel() {

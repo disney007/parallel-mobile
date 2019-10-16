@@ -1,10 +1,6 @@
 package com.pm.core.service;
 
-import com.google.common.collect.ImmutableMap;
 import com.pm.core.common.Utils;
-import com.pm.core.messageHandler.CustomMessageHandler;
-import com.pm.core.messageHandler.DeviceConnectedMessageHandler;
-import com.pm.core.messageHandler.DeviceDisconnectedMessageHandler;
 import com.pm.core.messageHandler.MessageHandler;
 import com.pm.core.model.message.Message;
 import com.pm.core.model.message.MessageType;
@@ -27,7 +23,7 @@ public class MessageService {
 
     @PostConstruct
     public void setup() {
-        networkService.setMessageService(this);
+        networkService.init(this);
         messageHandlers = applicationContext.getBeansOfType(MessageHandler.class)
                 .values().stream().collect(Collectors.toMap(MessageHandler::getType, m -> m));
         assert messageHandlers.size() == 3;

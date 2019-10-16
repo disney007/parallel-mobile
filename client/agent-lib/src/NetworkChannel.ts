@@ -1,21 +1,37 @@
-import {AuthClientReply, Message, MessageContent, MessageType, SubMessage} from "./Message";
+import {AuthClientReply, ConnectionPermit, Message, MessageContent, MessageType, SubMessage} from "./Message";
 import {Subject} from "rxjs";
+import axios from "axios";
 
 export class NetworkChannel {
 
     socket: WebSocket | undefined;
     userMessage: Subject<MessageContent> = new Subject<MessageContent>();
+    connectionPermit!: ConnectionPermit;
 
-    constructor(private url: string, private appId: string, private userId: string, private token: string) {
+    constructor(private baseUrl: string) {
+    }
+
+    registerAgent(): Promise<ConnectionPermit> {
+        return axios.post<ConnectionPermit>(this.baseUrl + '/api/connection/registerAgent')
+            .then(response => response.data)
     }
 
     connect() {
-        console.log('start connecting to web socket', this.url);
-        this.socket = new WebSocket(this.url);
-        this.socket.onopen = this.onOpen.bind(this);
-        this.socket.onmessage = this.onMessage.bind(this);
-        this.socket.onclose = this.onClosed.bind(this);
-        this.socket.onerror = this.onError.bind(this);
+        this.registerAgent()
+            .then(connectionPermit => {
+                this.connectionPermit = connectionPermit;
+
+                console.log('got connection permit, device id = ', connectionPermit.deviceId);
+                console.log('start connecting to web socket', this.connectionPermit.wsUrl);
+                this.socket = new WebSocket(this.connectionPermit.wsUrl);
+                this.socket.onopen = this.onOpen.bind(this);
+                this.socket.onmessage = this.onMessage.bind(this);
+                this.socket.onclose = this.onClosed.bind(this);
+                this.socket.onerror = this.onError.bind(this);
+            })
+            .catch((e) => {
+                console.log('error occurred during agent registration', e);
+            });
     }
 
     reconnect() {
@@ -56,9 +72,9 @@ export class NetworkChannel {
     authenticateClient() {
         console.log('authenticate client');
         this.sendMessage(MessageType.AUTH_CLIENT, {
-            "appId": this.appId,
-            "userId": this.userId,
-            "token": this.token
+            "appId": this.connectionPermit.appId,
+            "userId": this.connectionPermit.deviceId,
+            "token": this.connectionPermit.token
         })
     }
 
