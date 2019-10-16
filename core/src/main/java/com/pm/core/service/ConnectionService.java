@@ -22,6 +22,6 @@ public class ConnectionService {
         DeviceToken deviceToken = new DeviceToken(deviceId, deviceType, token, System.currentTimeMillis());
         deviceTokenRepository.save(deviceToken);
 
-        return new ConnectionPermit(applicationConfig.getWsUrl(), applicationConfig.getAppId(), deviceId, token);
+        return new ConnectionPermit(applicationConfig.getWsUrl(), applicationConfig.getAppId(), deviceId, token, applicationConfig.getMasterUserId());
     }
 }

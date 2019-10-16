@@ -1,0 +1,126 @@
+<html>
+<head>
+    <title>the demo for consumer device worker</title>
+    <style>
+
+        .left, .right {
+            float: left;
+            padding: 1em;
+            box-sizing: border-box;
+            width: 50%;
+        }
+
+        textarea {
+            width: 100%;
+            height: 500px;
+        }
+    </style>
+</head>
+<body>
+<div>
+    <h1>consumer device test</h1>
+    <div class="content">
+        <div class="left">
+            <textarea></textarea>
+            <br/>
+            <button>calculate</button>
+        </div>
+        <div class="right">
+
+        </div>
+    </div>
+
+</div>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"
+        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+        crossorigin="anonymous"></script>
+<script>
+    var baseUrl = 'http://localhost:9000';
+    var ws = null;
+    var masterId = null;
+    var displayElem = $('.right');
+    var editorElem = $('textarea');
+
+    function appendDisplayText(text) {
+        displayElem.append($('<div>' + text + '</div>'))
+    }
+
+    function setEditorValue(text) {
+        editorElem.val(text);
+    }
+
+    function getEditorValue() {
+        return editorElem.val();
+    }
+
+    $('button').click(function () {
+        var subMessage = {
+            type: 'CAL_REQ',
+            data: {
+                script: getEditorValue(),
+                id: 'xxx'
+            }
+        };
+        sendMessage('MESSAGE', {
+            "to": masterId,
+            "content": JSON.stringify(subMessage)
+        });
+    });
+
+    function registerConsumerDevice() {
+        var defer = $.Deferred();
+        return $.post(baseUrl + '/api/connection/registerConsumer', {}, function (data) {
+            defer.resolve(data);
+        });
+
+        return defer.promise();
+    }
+
+    function setupWebSocket(cp) {
+        masterId = cp.masterId;
+
+        ws = new WebSocket(cp.wsUrl);
+        ws.onopen = function () {
+            sendMessage('AUTH_CLIENT', {
+                "appId": cp.appId,
+                "userId": cp.deviceId,
+                "token": cp.token
+            })
+        };
+        ws.onmessage = function (e) {
+            var data = JSON.parse(e.data);
+            switch (data.type) {
+                case 'AUTH_CLIENT_REPLY':
+                    appendDisplayText('connected to server');
+                    break;
+                case 'MESSAGE':
+                    appendDisplayText(JSON.parse(data.data.content).data.result);
+                    break;
+            }
+        };
+        ws.onclose = function () {
+            console.log('websocket closed')
+        };
+        ws.onerror = function (e) {
+            console.log('error occurred in websocket', e)
+        };
+    }
+
+    function sendMessage(type, data) {
+        ws.send(JSON.stringify({
+            type: type,
+            data: data
+        }));
+    }
+
+    $(document).ready(function () {
+        registerConsumerDevice()
+            .then(function (connectionPermit) {
+                setupWebSocket(connectionPermit);
+                setEditorValue('var a=1+2;a;')
+            });
+    });
+
+</script>
+</body>
+</html>

@@ -12,4 +12,5 @@ public class ConnectionPermit {
     String appId;
     String deviceId;
     String token;
+    String masterId;
 }
