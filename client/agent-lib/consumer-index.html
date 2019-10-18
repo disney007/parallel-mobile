@@ -35,7 +35,7 @@
         integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
         crossorigin="anonymous"></script>
 <script>
-    var baseUrl = location.protocol + '//' + location.host;
+    var baseUrl = 'http://localhost:9000';
     var ws = null;
     var masterId = null;
     var displayElem = $('.right');
@@ -117,7 +117,7 @@
         registerConsumerDevice()
             .then(function (connectionPermit) {
                 setupWebSocket(connectionPermit);
-                setEditorValue('var a=1+2;return a;')consumer-index.html
+                setEditorValue('var a=1+2;return a;')
             });
     });
 

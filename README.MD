@@ -7,7 +7,7 @@ Request:
    "type":"MESSAGE",
    "data":{
       "to":"ANZ-123223",
-      "content":"{\"type\":\"CAL_REQ\",\"data\":{\"script\":\"var a=[1+1];a;\",\"id\": \"xxx\"}}"
+      "content":"{\"type\":\"CAL_REQ\",\"data\":{\"script\":\"var a=[1+1];return a;\",\"id\": \"xxx\"}}"
    }
 }
 ```

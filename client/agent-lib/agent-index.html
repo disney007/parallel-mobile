@@ -8,7 +8,7 @@
 </div>
 <script src="dist/agent-lib.js"></script>
 <script>
-    var jobRunner = new window.agentLib.JobRunner(location.protocol + '//' + location.host);
+    var jobRunner = new window.agentLib.JobRunner("http://localhost:9000");
     jobRunner.run();
 </script>
 </body>
