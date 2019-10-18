@@ -23,10 +23,10 @@ public class MessageService {
 
     @PostConstruct
     public void setup() {
-        networkService.init(this);
         messageHandlers = applicationContext.getBeansOfType(MessageHandler.class)
                 .values().stream().collect(Collectors.toMap(MessageHandler::getType, m -> m));
         assert messageHandlers.size() == 3;
+        networkService.init(this);
     }
 
     public void handleMessage(Message message) {
