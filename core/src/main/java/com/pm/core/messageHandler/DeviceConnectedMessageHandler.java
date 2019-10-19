@@ -1,6 +1,7 @@
 package com.pm.core.messageHandler;
 
 import com.pm.core.entity.*;
+import com.pm.core.event.AgentDeviceAvailableEvent;
 import com.pm.core.model.device.DeviceState;
 import com.pm.core.model.device.DeviceType;
 import com.pm.core.model.message.DeviceConnectionRecord;
@@ -13,6 +14,7 @@ import com.pm.core.repository.DeviceTypeInfoRepository;
 import com.pm.core.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +27,7 @@ public class DeviceConnectedMessageHandler implements MessageHandler {
     final ConsumerDeviceRepository consumerDeviceRepository;
     final DeviceTypeInfoRepository deviceTypeInfoRepository;
     final AccountService accountService;
+    final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     public MessageType getType() {
@@ -54,6 +57,7 @@ public class DeviceConnectedMessageHandler implements MessageHandler {
 
         if (DeviceType.AGENT.equals(deviceType)) {
             agentDeviceRepository.save(new AgentDevice(deviceId, DeviceState.IDLE, account.getUsername(), System.currentTimeMillis()));
+            applicationEventPublisher.publishEvent(new AgentDeviceAvailableEvent());
         } else if (DeviceType.CONSUMER.equals(deviceType)) {
             consumerDeviceRepository.save(new ConsumerDevice(deviceId, account.getUsername(), System.currentTimeMillis()));
         }
