@@ -23,6 +23,6 @@ public class CalculationResultHandler implements ApplicationMessageHandler {
     public void handle(ApplicationMessage message, String senderDeviceId) {
         CalJobResult result = message.toData(CalJobResult.class);
         log.info("calculation result, id = [{}]", result.getId());
-        calculationService.updateJobResult(result);
+        calculationService.completeJob(result);
     }
 }

@@ -46,7 +46,8 @@ public class CalculationService {
         return job;
     }
 
-    public void updateJobResult(CalJobResult result) {
+    @Transactional
+    public void completeJob(CalJobResult result) {
         Optional<CalculationJob> calculationJob = calculationJobRepository.findCalculationJob(result.getId());
         if (!calculationJob.isPresent()) {
             log.warn("job not found for execution id [{}]", result.getId());
@@ -57,19 +58,18 @@ public class CalculationService {
             job.getExecution(result.getId()).ifPresent(exec -> {
                 exec.setState(result.getState());
                 exec.setUpdateTimestamp(System.currentTimeMillis());
+                agentDeviceRepository.updateDeviceStatus(exec.getExecDeviceId(), DeviceState.IDLE);
             });
 
             job.setState(CalJobState.COMPLETED);
             job.setResult(result.getResult());
             job.setResultTimestamp(System.currentTimeMillis());
-            calculationJobRepository.save(job);
 
-            consumerDeviceRepository.findByOwner(job.getOwner()).ifPresent(consumerDevice -> {
+            consumerDeviceRepository.findFirstByOwner(job.getOwner()).ifPresent(consumerDevice -> {
                 CalculationResult calculationResult = new CalculationResult(job.getRequestId(), job.getResult(), result.getState());
                 networkService.sendApplicationMessage(ApplicationMessageType.CAL_RES, calculationResult, consumerDevice.getDeviceId());
                 log.info("send result [jobId = {}] to [{}]", job.getId(), consumerDevice.getDeviceId());
             });
-
         });
     }
 
@@ -84,6 +84,8 @@ public class CalculationService {
 
         agentDevice.ifPresent(device -> {
             log.info("found agent device [{}]", device);
+            device.setState(DeviceState.RUNNING);
+
             CalculationJobExecution execution = new CalculationJobExecution(UUID.randomUUID(), job, device.getDeviceId(),
                     device.getOwner(), CalJobExecState.RUNNING, System.currentTimeMillis(), null);
             job.getExecutions().add(execution);
@@ -94,7 +96,6 @@ public class CalculationService {
             networkService.sendApplicationMessage(ApplicationMessageType.CAL_REQ, forwardReq, device.getDeviceId());
             log.info("send execution job [{}] to [{}]", execution.getId(), device.getDeviceId());
         });
-
     }
 
     public Optional<AgentDevice> requestAvailableAgentDevice() {

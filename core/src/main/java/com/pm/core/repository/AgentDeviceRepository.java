@@ -37,4 +37,16 @@ public class AgentDeviceRepository {
                 .setParameter("deviceId", id)
                 .executeUpdate();
     }
+
+    Optional<AgentDevice> getById(String deviceId) {
+        Session session = entityManager.unwrap(Session.class);
+        return Optional.ofNullable(session.get(AgentDevice.class, deviceId));
+    }
+
+    public Optional<AgentDevice> updateDeviceStatus(String deviceId, DeviceState state) {
+        return getById(deviceId).map(device -> {
+            device.setState(state);
+            return device;
+        });
+    }
 }
