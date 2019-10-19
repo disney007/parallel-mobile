@@ -3,7 +3,7 @@ package com.pm.core.messageHandler.applicationMessageHandler;
 import com.pm.core.model.calculation.CalJobResult;
 import com.pm.core.model.message.ApplicationMessageType;
 import com.pm.core.model.message.applicationMessage.ApplicationMessage;
-import com.pm.core.service.CalculationService;
+import com.pm.core.service.JobManagementService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @RequiredArgsConstructor
 public class CalculationResultHandler implements ApplicationMessageHandler {
-    final CalculationService calculationService;
+    final JobManagementService jobManagementService;
 
     @Override
     public ApplicationMessageType getType() {
@@ -23,6 +23,6 @@ public class CalculationResultHandler implements ApplicationMessageHandler {
     public void handle(ApplicationMessage message, String senderDeviceId) {
         CalJobResult result = message.toData(CalJobResult.class);
         log.info("calculation result, id = [{}]", result.getId());
-        calculationService.completeJob(result);
+        jobManagementService.completeJob(result);
     }
 }
