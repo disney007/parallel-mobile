@@ -15,6 +15,7 @@ import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.scheduling.support.TaskUtils;
 
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -26,6 +27,8 @@ public class BeanConfig {
 
     @Value("${spring.redis.port}")
     private int REDIS_PORT;
+
+    ExecutorService executorService = Executors.newFixedThreadPool(10);
 
     @Bean
     public ObjectMapper objectMapper() {
@@ -61,9 +64,13 @@ public class BeanConfig {
     @Bean
     ApplicationEventMulticaster applicationEventMulticaster() {
         SimpleApplicationEventMulticaster eventMulticaster = new SimpleApplicationEventMulticaster();
-        eventMulticaster.setTaskExecutor(Executors.newFixedThreadPool(10));
+        eventMulticaster.setTaskExecutor(executorService);
         eventMulticaster.setErrorHandler(TaskUtils.LOG_AND_SUPPRESS_ERROR_HANDLER);
         return eventMulticaster;
     }
 
+    @Bean
+    ExecutorService executorService() {
+        return executorService;
+    }
 }

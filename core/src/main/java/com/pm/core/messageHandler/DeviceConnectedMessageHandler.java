@@ -12,11 +12,13 @@ import com.pm.core.repository.ConsumerDeviceRepository;
 import com.pm.core.repository.DeviceTokenRepository;
 import com.pm.core.repository.DeviceTypeInfoRepository;
 import com.pm.core.service.AccountService;
+import com.pm.core.service.TransactionUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+
+import java.util.concurrent.ExecutorService;
 
 @Service
 @Slf4j
@@ -28,6 +30,8 @@ public class DeviceConnectedMessageHandler implements MessageHandler {
     final DeviceTypeInfoRepository deviceTypeInfoRepository;
     final AccountService accountService;
     final ApplicationEventPublisher applicationEventPublisher;
+    final ExecutorService executorService;
+    final TransactionUtil transactionUtil;
 
     @Override
     public MessageType getType() {
@@ -35,33 +39,38 @@ public class DeviceConnectedMessageHandler implements MessageHandler {
     }
 
     @Override
-    @Transactional
     public void handle(Message message) {
         final DeviceConnectionRecord record = message.toData(DeviceConnectionRecord.class);
+        executorService.execute(() -> this.process(record));
+    }
+
+    void process(DeviceConnectionRecord record) {
         final String deviceId = record.getDeviceId();
         log.info("device connected: [{}]", deviceId);
 
-        DeviceToken deviceToken = deviceTokenRepository.getByDeviceId(deviceId);
-        if (deviceToken == null) {
-            // todo: disconnect current device
-            log.info("token not found for device id [{}], disconnect", deviceId);
-            return;
-        }
+        transactionUtil.withTransaction(() -> {
+            DeviceToken deviceToken = deviceTokenRepository.getByDeviceId(deviceId);
+            if (deviceToken == null) {
+                // todo: disconnect current device
+                log.info("token not found for device id [{}], disconnect", deviceId);
+                return;
+            }
 
-        // random account for demo purpose;
-        Account account = accountService.generateRandomAccount();
+            // random account for demo purpose;
+            Account account = accountService.generateRandomAccount();
 
-        DeviceType deviceType = deviceToken.getType();
-        DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo(deviceId, deviceType);
-        deviceTypeInfoRepository.save(deviceTypeInfo);
+            DeviceType deviceType = deviceToken.getType();
+            DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo(deviceId, deviceType);
+            deviceTypeInfoRepository.save(deviceTypeInfo);
 
-        if (DeviceType.AGENT.equals(deviceType)) {
-            agentDeviceRepository.save(new AgentDevice(deviceId, DeviceState.IDLE, account.getUsername(), System.currentTimeMillis()));
-            applicationEventPublisher.publishEvent(new AgentDeviceAvailableEvent());
-        } else if (DeviceType.CONSUMER.equals(deviceType)) {
-            consumerDeviceRepository.save(new ConsumerDevice(deviceId, account.getUsername(), System.currentTimeMillis()));
-        }
+            if (DeviceType.AGENT.equals(deviceType)) {
+                agentDeviceRepository.save(new AgentDevice(deviceId, DeviceState.IDLE, account.getUsername(), System.currentTimeMillis()));
+                applicationEventPublisher.publishEvent(new AgentDeviceAvailableEvent());
+            } else if (DeviceType.CONSUMER.equals(deviceType)) {
+                consumerDeviceRepository.save(new ConsumerDevice(deviceId, account.getUsername(), System.currentTimeMillis()));
+            }
 
-        deviceTokenRepository.delete(deviceToken);
+            deviceTokenRepository.delete(deviceToken);
+        });
     }
 }
