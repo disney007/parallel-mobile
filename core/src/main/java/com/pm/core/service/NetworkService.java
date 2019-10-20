@@ -104,9 +104,17 @@ public class NetworkService {
         channel.sendMessage(type, payload);
     }
 
+    public void sendMessage(MessageType type, Object payload, String reference) {
+        channel.sendMessage(type, payload, reference);
+    }
+
     public void sendApplicationMessage(ApplicationMessageType type, Object payload, String to) {
+        sendApplicationMessage(type, payload, to, null);
+    }
+
+    public void sendApplicationMessage(ApplicationMessageType type, Object payload, String to, String reference) {
         ApplicationMessage applicationMessage = new ApplicationMessage(type, payload);
         String msgJson = Utils.toJson(applicationMessage);
-        sendMessage(MessageType.MESSAGE, new CustomMessageOut(to, msgJson));
+        sendMessage(MessageType.MESSAGE, new CustomMessageOut(to, msgJson), reference);
     }
 }

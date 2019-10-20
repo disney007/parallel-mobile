@@ -5,6 +5,8 @@ import com.pm.core.entity.CalculationJob;
 import com.pm.core.entity.CalculationJobExecution;
 import com.pm.core.event.AgentDeviceAvailableEvent;
 import com.pm.core.event.JobAvailableEvent;
+import com.pm.core.event.ResultSentToConsumerEvent;
+import com.pm.core.model.Keywords;
 import com.pm.core.model.calculation.CalJobExecState;
 import com.pm.core.model.calculation.CalJobRequest;
 import com.pm.core.model.calculation.CalJobResult;
@@ -64,7 +66,7 @@ public class JobManagementService {
         }).ifPresent(job -> {
             consumerDeviceRepository.findFirstByOwner(job.getOwner()).ifPresent(consumerDevice -> {
                 CalculationResult calculationResult = new CalculationResult(job.getRequestId(), job.getResult(), result.getState());
-                networkService.sendApplicationMessage(ApplicationMessageType.CAL_RES, calculationResult, consumerDevice.getDeviceId());
+                networkService.sendApplicationMessage(ApplicationMessageType.CAL_RES, calculationResult, consumerDevice.getDeviceId(), Keywords.REFERENCE_JOB_ID + job.getId());
                 log.info("send result [jobId = {}] to [{}]", job.getId(), consumerDevice.getDeviceId());
             });
         });
@@ -113,5 +115,13 @@ public class JobManagementService {
                 log.info("send execution job [{}] to [{}]", execution.getId(), device.getDeviceId());
             });
         });
+    }
+
+    @EventListener(ResultSentToConsumerEvent.class)
+    @Transactional
+    public void handleResultSentToConsumer(ResultSentToConsumerEvent event) {
+        log.info("result was sent out for job id [{}]", event.getJobId());
+        calculationJobRepository.findById(event.getJobId())
+                .ifPresent(job -> job.setState(CalJobState.RESULT_SENT_OUT));
     }
 }

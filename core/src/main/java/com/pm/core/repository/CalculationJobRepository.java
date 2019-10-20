@@ -13,6 +13,14 @@ import java.util.UUID;
 public class CalculationJobRepository extends BaseRepository {
 
 
+    public Optional<CalculationJob> findById(UUID jobId) {
+        List<CalculationJob> result = session().createQuery("from CalculationJob where id = :id", CalculationJob.class)
+                .setParameter("id", jobId)
+                .list();
+
+        return getFirst(result);
+    }
+
     public Optional<CalculationJob> findByExecutionId(UUID jobExecutionId) {
         List<CalculationJob> list = session().createQuery("select exec.job from CalculationJobExecution as exec where exec.id=:jobExecutionId", CalculationJob.class)
                 .setParameter("jobExecutionId", jobExecutionId)

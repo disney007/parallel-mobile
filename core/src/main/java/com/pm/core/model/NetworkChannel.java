@@ -1,15 +1,16 @@
 package com.pm.core.model;
 
-import com.google.common.collect.ImmutableMap;
 import com.machinezoo.noexception.Exceptions;
 import com.pm.core.common.Utils;
 import com.pm.core.model.message.Message;
 import com.pm.core.model.message.MessageType;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.websocket.*;
 import java.net.URI;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -29,7 +30,12 @@ public class NetworkChannel {
 
         @OnMessage
         public void processMessage(String message) {
-            onMessage(message);
+            try {
+                onMessage(message);
+            } catch (Exception e) {
+                log.error("unhandled exception received", e);
+            }
+
         }
 
         @OnError
@@ -100,15 +106,21 @@ public class NetworkChannel {
     }
 
     public void sendMessage(MessageType type, Object payload) {
+        sendMessage(type, payload, null);
+    }
+
+    public void sendMessage(MessageType type, Object payload, String reference) {
         if (!isConnected()) {
             log.warn("network user is not connected");
             return;
         }
-        Map<String, Object> message = ImmutableMap.of(
-                "type", type,
-                "data", payload,
-                "feature", "RELIABLE"
-        );
+        Map<String, Object> message = new HashMap<>();
+        message.put("type", type);
+        message.put("data", payload);
+        message.put("feature", "RELIABLE");
+        if (StringUtils.isNotEmpty(reference)) {
+            message.put("reference", reference);
+        }
 
         String msgJson = Utils.toJson(message);
         log.debug("send message:[{}]", msgJson);
