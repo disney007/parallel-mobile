@@ -7,6 +7,8 @@ import com.pm.core.model.message.MessageType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -21,12 +23,16 @@ public class MessageService {
     final NetworkService networkService;
     Map<MessageType, MessageHandler> messageHandlers;
 
-    @PostConstruct
     public void setup() {
         messageHandlers = applicationContext.getBeansOfType(MessageHandler.class)
                 .values().stream().collect(Collectors.toMap(MessageHandler::getType, m -> m));
         assert messageHandlers.size() == 3;
         networkService.init(this);
+    }
+
+    @EventListener
+    public void handleContextRefresh(ContextRefreshedEvent event) {
+        this.setup();
     }
 
     public void handleMessage(Message message) {

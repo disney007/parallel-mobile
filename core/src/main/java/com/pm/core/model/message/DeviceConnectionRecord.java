@@ -1,9 +1,9 @@
 package com.pm.core.model.message;
 
-import lombok.Data;
+import lombok.Setter;
 
-@Data
 public class DeviceConnectionRecord {
+    @Setter
     String userId;
 
     public String getDeviceId(){
