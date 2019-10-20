@@ -1,12 +1,5 @@
 import {NetworkChannel} from "./NetworkChannel";
-import {
-    CalculationResponse,
-    ConnectionPermit,
-    MessageContent,
-    MessageType,
-    SubMessage,
-    SubMessageType
-} from "./Message";
+import {CalculationResponse, MessageContent, MessageType, SubMessage, SubMessageType} from "./Message";
 
 import {Calculator} from "./Calculator";
 

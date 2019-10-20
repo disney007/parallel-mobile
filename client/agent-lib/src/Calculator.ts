@@ -8,6 +8,7 @@ export class Calculator {
     constructor() {
         this.jobWorker = new JobWorker();
         this.jobWorker.onmessage = this.handleJobWorkMessage.bind(this);
+        this.jobWorker.onerror = this.handleError.bind(this);
     }
 
     calculate(request: CalculationRequest): Promise<CalculationResponse> {
@@ -30,13 +31,27 @@ export class Calculator {
             }
 
             this.resolve = res;
+            this.resolve.requestId = request.id;
             this.jobWorker.postMessage(request);
         });
     }
 
-    handleJobWorkMessage(e: MessageEvent) {
-        this.resolve(e.data);
+    complete(data: any) {
+        this.resolve(data);
         this.resolve = undefined;
+    }
+
+    handleJobWorkMessage(e: MessageEvent) {
+        this.complete(e.data);
+    }
+
+    handleError(e: ErrorEvent) {
+        const res: CalculationResponse = {
+            id: this.resolve.requestId,
+            result: e.message,
+            state: CalculationState.SUCCESS
+        };
+        this.complete(res);
     }
 
 }
