@@ -8,5 +8,5 @@ import lombok.Data;
 public class CalJobRequest {
     String requestId;
     String script;
-    String owner;
+    String consumerDeviceId;
 }

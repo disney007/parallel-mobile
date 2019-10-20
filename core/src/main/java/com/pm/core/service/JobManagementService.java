@@ -1,12 +1,8 @@
 package com.pm.core.service;
 
-import com.pm.core.entity.AgentDevice;
 import com.pm.core.entity.CalculationJob;
 import com.pm.core.entity.CalculationJobExecution;
-import com.pm.core.event.AgentDeviceAvailableEvent;
-import com.pm.core.event.JobAvailableEvent;
-import com.pm.core.event.JobCompleteEvent;
-import com.pm.core.event.ResultSentToConsumerEvent;
+import com.pm.core.event.*;
 import com.pm.core.model.Keywords;
 import com.pm.core.model.calculation.CalJobExecState;
 import com.pm.core.model.calculation.CalJobRequest;
@@ -42,24 +38,26 @@ public class JobManagementService {
     final TransactionUtil transactionUtil;
 
 
-    public CalculationJob createJob(CalJobRequest request) {
-        CalculationJob job = CalculationJob.builder()
-                .id(UUID.randomUUID())
-                .requestId(request.getRequestId())
-                .script(request.getScript())
-                .owner(request.getOwner())
-                .state(CalJobState.READY)
-                .createdTimestamp(System.currentTimeMillis())
-                .build();
-        calculationJobRepository.save(job);
+    @EventListener(JobRequestEvent.class)
+    public void requestJob(JobRequestEvent event) {
+        CalJobRequest request = event.getJobRequest();
+        log.info("handle job request, id = [{}]", request.getRequestId());
 
-        return job;
-    }
+        transactionUtil.withTransaction(() -> {
+            consumerDeviceRepository.findById(request.getConsumerDeviceId()).ifPresent(consumerDevice -> {
+                CalculationJob job = CalculationJob.builder()
+                        .id(UUID.randomUUID())
+                        .requestId(request.getRequestId())
+                        .script(request.getScript())
+                        .owner(consumerDevice.getOwner())
+                        .state(CalJobState.READY)
+                        .createdTimestamp(System.currentTimeMillis())
+                        .build();
+                calculationJobRepository.save(job);
+                log.info("new calculation job created [{}]", job.getInfo());
+            });
+        });
 
-
-    public void requestJob(CalJobRequest jobRequest) {
-        CalculationJob job = transactionUtil.withTransaction(() -> createJob(jobRequest));
-        log.info("new calculation job created [{}]", job.getInfo());
         applicationEventPublisher.publishEvent(new JobAvailableEvent());
     }
 
