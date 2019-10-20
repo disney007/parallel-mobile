@@ -28,7 +28,7 @@ server:
     context-path: /api
 minDeviceId: 1
 maxDeviceId: 10000000
-appId: bnz-344
-deviceIdPrefix: BNZ
-masterUserId: BNZ-453432
+appId: app-id-343
+deviceIdPrefix: ANZ
+masterUserId: ANZ-123223
 wsUrl: wss://m.gl-world.de/ws
