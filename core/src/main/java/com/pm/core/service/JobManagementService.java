@@ -5,6 +5,7 @@ import com.pm.core.entity.CalculationJob;
 import com.pm.core.entity.CalculationJobExecution;
 import com.pm.core.event.AgentDeviceAvailableEvent;
 import com.pm.core.event.JobAvailableEvent;
+import com.pm.core.event.JobCompleteEvent;
 import com.pm.core.event.ResultSentToConsumerEvent;
 import com.pm.core.model.Keywords;
 import com.pm.core.model.calculation.CalJobExecState;
@@ -39,39 +40,6 @@ public class JobManagementService {
     final NetworkService networkService;
     final ApplicationEventPublisher applicationEventPublisher;
     final TransactionUtil transactionUtil;
-
-
-    public void processJobResult(CalJobResult result) {
-        log.info("process job result, execution id = {}", result.getId());
-        transactionUtil.withTransaction(() -> {
-            Optional<CalculationJob> calculationJob = calculationJobRepository.findByExecutionId(result.getId());
-            if (!calculationJob.isPresent()) {
-                log.warn("job not found for execution id [{}]", result.getId());
-                return calculationJob;
-            }
-
-            calculationJob.ifPresent(job -> {
-                job.getExecution(result.getId()).ifPresent(exec -> {
-                    exec.setState(result.getState());
-                    exec.setUpdateTimestamp(System.currentTimeMillis());
-                    agentDeviceRepository.updateDeviceStatus(exec.getExecDeviceId(), DeviceState.IDLE);
-                });
-
-                job.setState(CalJobState.COMPLETED);
-                job.setResult(result.getResult());
-                job.setResultTimestamp(System.currentTimeMillis());
-            });
-
-            return calculationJob;
-        }).ifPresent(job -> {
-            consumerDeviceRepository.findFirstByOwner(job.getOwner()).ifPresent(consumerDevice -> {
-                CalculationResult calculationResult = new CalculationResult(job.getRequestId(), job.getResult(), result.getState());
-                networkService.sendApplicationMessage(ApplicationMessageType.CAL_RES, calculationResult, consumerDevice.getDeviceId(), Keywords.REFERENCE_JOB_ID + job.getId());
-                log.info("send result [jobId = {}] to [{}]", job.getId(), consumerDevice.getDeviceId());
-            });
-        });
-        applicationEventPublisher.publishEvent(new AgentDeviceAvailableEvent());
-    }
 
 
     public CalculationJob createJob(CalJobRequest request) {
@@ -115,6 +83,40 @@ public class JobManagementService {
                 log.info("send execution job [{}] to [{}]", execution.getId(), device.getDeviceId());
             });
         });
+    }
+
+    @EventListener(JobCompleteEvent.class)
+    public void processJobResult(JobCompleteEvent event) {
+        CalJobResult result = event.getResult();
+        log.info("process job result, execution id = {}", result.getId());
+        transactionUtil.withTransaction(() -> {
+            Optional<CalculationJob> calculationJob = calculationJobRepository.findByExecutionId(result.getId());
+            if (!calculationJob.isPresent()) {
+                log.warn("job not found for execution id [{}]", result.getId());
+                return calculationJob;
+            }
+
+            calculationJob.ifPresent(job -> {
+                job.getExecution(result.getId()).ifPresent(exec -> {
+                    exec.setState(result.getState());
+                    exec.setUpdateTimestamp(System.currentTimeMillis());
+                    agentDeviceRepository.updateDeviceStatus(exec.getExecDeviceId(), DeviceState.IDLE);
+                });
+
+                job.setState(CalJobState.COMPLETED);
+                job.setResult(result.getResult());
+                job.setResultTimestamp(System.currentTimeMillis());
+            });
+
+            return calculationJob;
+        }).ifPresent(job -> {
+            consumerDeviceRepository.findFirstByOwner(job.getOwner()).ifPresent(consumerDevice -> {
+                CalculationResult calculationResult = new CalculationResult(job.getRequestId(), job.getResult(), result.getState());
+                networkService.sendApplicationMessage(ApplicationMessageType.CAL_RES, calculationResult, consumerDevice.getDeviceId(), Keywords.REFERENCE_JOB_ID + job.getId());
+                log.info("send result [jobId = {}] to [{}]", job.getId(), consumerDevice.getDeviceId());
+            });
+        });
+        applicationEventPublisher.publishEvent(new AgentDeviceAvailableEvent());
     }
 
     @EventListener(ResultSentToConsumerEvent.class)
